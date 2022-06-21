@@ -1,0 +1,17 @@
+{
+  "name": "source-copier",
+  "version": "0.0.1",
+  "private": true,
+  "scripts": {
+    "test": "mocha ./tests/test*",
+    "coverage": "istanbul cover _mocha -- tests/test*"
+  },
+  "dependencies": {},
+  "devDependencies": {
+    "istanbul": "^0.4.5",
+    "mocha": "^5.2.0",
+    "proxyquire": "^2.0.1",
+    "sinon": "^6.0.1",
+    "yargs": "^11.0.0"
+  }
+}

@@ -1,0 +1,112 @@
+<br>
+<div id="loader" style="display:none;width:100%; height:100%; position:fixed; top:0; left:0; background-color:#000; opacity:0.2"><div style="width:80px; margin:0 auto; position:absolute; top:50%; left:50%; margin-top:-25px; margin-left:-25px;z-index:2;"><div class="lds-ring"><div></div><div></div><div></div><div></div></div></div></div>
+<div id="app"></div>
+
+<style>
+  tr.l:hover {
+    background-color: black;
+    color:white;
+    cursor:pointer;
+  }
+
+  .lds-ring {display: inline-block;position: relative;width: 80px;height: 80px;}
+  .lds-ring div {box-sizing: border-box;display: block;position: absolute;width: 64px;height: 64px;margin: 8px;border: 8px solid #fff;border-radius: 50%;animation: lds-ring 1.2s cubic-bezier(0.5, 0, 0.5, 1) infinite;border-color: #fff transparent transparent transparent;}
+  .lds-ring div:nth-child(1) {animation-delay: -0.45s;}
+  .lds-ring div:nth-child(2) {animation-delay: -0.3s;}
+  .lds-ring div:nth-child(3) {animation-delay: -0.15s;}
+  @keyframes lds-ring {0% {transform: rotate(0deg);} 100% {transform: rotate(360deg);}
+}
+
+</style>
+
+<script src="jq-min.js"></script>
+<script>
+let url = new URL(window.location);
+let params = new URLSearchParams(url.search.slice(1));
+const id = params.get('id');
+
+var data;
+
+if (!id) {
+  loadEventList()
+  .then( res => {
+    $('#login').hide();
+    showEventList();
+  })
+  .catch( err => {
+    console.log('error', err);
+    alert('Cannot get data');
+  })
+} else {
+  loadEvent(id)
+  .then( res => {
+    $('#login').hide();
+    showEvent();
+  })
+  .catch( err => {
+    console.log('error', err);
+    alert('Cannot get data');
+  })
+}
+
+
+function loadEventList() {
+  $('#loader').show();
+  return ajax_p({url:'/eventList'})
+  .then(res => {
+    $('#loader').hide();
+    data = res.data;
+    data.forEach((itm, index) => itm.id = index)
+    data.sort((a, b) => {
+      return (b.ts || 0) - (a.ts || 0);
+    });
+    return res;
+  })
+  .catch(err => {
+    $('#loader').hide();
+    return Promise.reject(err);
+  })
+}
+
+function loadEvent(id) {
+  $('#loader').show();
+  return ajax_p({url:'/event', data:{id}})
+  .then(res => {
+    $('#loader').hide();
+    data = res.responseText;
+    return res;
+  })
+  .catch(err => {
+    $('#loader').hide();
+    return Promise.reject(err);
+  })
+}
+
+
+function showEventList() {
+	var t = '<table><tr><th>status</th><th>ts</td><th>date</td><th>user</td><th>project</td><th>repo</td><th>ref</td><th>#from</td><th>#to</td><th>cnt</td><th>sec</th></tr>';
+  data.forEach( itm => {
+    let d = Math.round((itm.duration || 0) / 100) /10;
+    t = t + '<tr class="l" onClick="window.location.href=window.location.href+\'?id=\'+'+itm.id+'">'
+          +  '<td>' + itm.status + '</td>'
+          +  '<td>' + (itm.ts ? new Date(itm.ts) : '') + '</td>'
+          +  '<td>' + (itm.date || '') + '</td>'
+          +  '<td>' + (itm.name || '') + '</td>'
+          +  '<td>' + (itm.repo_project || '') + '</td>'
+          +  '<td>' + (itm.repo_name || '') + '</td>'
+          +  '<td>' + (itm.change_ref || '') + '</td>'
+          +  '<td>' + (itm.change_from || '').substring(0, 8) + '</td>'
+          +  '<td>' + (itm.change_to || '').substring(0, 8) + '</td>'
+          +  '<td>' + itm.changes_count + '</td>'
+	  +  '<td>' + (d || '') + '</td>' 
+          + '</tr>';
+  })
+  t = t + '</table>';
+  $('#app')[0].innerHTML = t;
+}
+
+function showEvent() {
+  $('#app')[0].innerHTML = '<pre>'+data+'</pre>';
+}
+
+</script>

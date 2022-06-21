@@ -1,0 +1,4 @@
+while read data; 
+do
+  eval "./g $data";
+done <./_cfg

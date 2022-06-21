@@ -1,0 +1,6 @@
+
+[bug] Log will not be saved to file aif Ctrl-C pressed
+
+[potential bug] Bash output can be devided in every place while code suggests that it devided somethere near end of line
+
+[feature] command line parameter for grep repos from _cfg
