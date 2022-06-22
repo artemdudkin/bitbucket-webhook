@@ -1,6 +1,6 @@
 # source-copier
 
-Clone git repo with all branches then push it to another repo.
+Clone git repo with all branches (and tags) then push it to another repo.
 
 
 ## How it works
