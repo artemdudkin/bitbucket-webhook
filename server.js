@@ -81,6 +81,9 @@ app.all('/hook', function(req, res, next) {
 
   eventList.data.push({id:eventList.length, ts: Date.now(), status:"pending", name, date, repo_name, repo_project, changes_count, change_ref, change_from, change_to });
   storage.forceSave('eventList');
+	
+  let fn = path.join(__dirname, 'data', (eventList.data-1)+'.hook.json');
+  fs.writeFileSync(fn, JSON.stringify(req.body, null, 4));
 });
 
 
@@ -148,6 +151,7 @@ app.all('/event', function(req, res, next) {
   if (id) {
     let summary = "";
     let details = "";
+    let hook = "";
     try {
       summary = fs.readFileSync(path.join(__dirname, 'data', id+'.summary.json'));
     } catch (e) {
@@ -158,7 +162,12 @@ app.all('/event', function(req, res, next) {
     } catch (e) {
       console.log("ERROR", e);
     }
-    res.end('SUMMARY\n\n' + summary + '\n\n\nDETAILS\n\n' + details.toString().replace(/^(?:[\t ]*(?:\r?\n|\r))+/));
+    try {
+      hook = fs.readFileSync(path.join(__dirname, 'data', id+'.hook.json') );
+    } catch (e) {
+      console.log("ERROR", e);
+    }
+    res.end('SUMMARY\n\n' + summary + '\n\n\nDETAILS\n\n' + details.toString().replace(/^(?:[\t ]*(?:\r?\n|\r))+/) + '\n\nHOOK\n\n' + hook);
   } else {
     res.status(404).end();
   }
