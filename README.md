@@ -21,5 +21,5 @@ Proof-of-concept app to that catches webhook from bitbucket and updates remote r
 | ------------- | ------------- |
 | <img src="https://raw.githubusercontent.com/artemdudkin/bitbucket-webhook/main/docs/index.png" width="400">  | <img src="https://raw.githubusercontent.com/artemdudkin/bitbucket-webhook/main/docs/event.png" width="400">  |
 
-##Troubleshooting
+## Troubleshooting
 If you've got `"ERROR Error: spawn ./run EACCES"` at Linux, then check executability of `source-copier/sh/run` script (also as `g` and `d`) and run `chmod +x run` if neened.
