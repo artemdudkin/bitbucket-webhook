@@ -26,7 +26,7 @@ Returns list of "webhook fired" cases
 ### POST /event {id:XXX}
 Returns output of shell script for selected "webhook fired" case
 
-## Web inerface
+## Web interface
 
 | /  | /?id=XXX |
 | ------------- | ------------- |
