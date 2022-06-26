@@ -81,6 +81,10 @@ app.all('/hook', function(req, res, next) {
 
   eventList.data.push({id:eventList.length, ts: Date.now(), status:"pending", name, date, repo_name, repo_project, changes_count, change_ref, change_from, change_to });
   storage.forceSave('eventList');
+
+  let fn = path.join(__dirname, 'data', (eventList.data.length-1)+'.hook.json');
+  fs.writeFileSync(fn, JSON.stringify(req.body, null, 4));
+
 });
 
 
@@ -113,8 +117,8 @@ function startEvent() {
       fs.writeFileSync(path.join(__dirname, 'source-copier', 'sh', '_cfg'), `${GIT_SOURCE}${repo_project}/${repo_name}.git ${GIT_TARGET}${repo_project}/${repo_name}.git\n`);
       process.chdir(path.join(__dirname, 'source-copier'));
       run( path.join(__dirname, 'data', id+'.log.json') )
-      .then( () => {
-        eventList.data[id].status = "ok";
+      .then( res => {
+        eventList.data[id].status = res.changed;//"ok";
 	eventList.data[id].duration = Date.now() - stime;
 //        return new Promise((resolve, reject) => setTimeout(()=>resolve(), 7000))
       })
@@ -129,7 +133,6 @@ function startEvent() {
         started = false;
       })
     } else {
-//      console.log('no data');
       started = false;
     }
   } catch (e) {
@@ -148,6 +151,7 @@ app.all('/event', function(req, res, next) {
   if (id) {
     let summary = "";
     let details = "";
+    let hook = "";
     try {
       summary = fs.readFileSync(path.join(__dirname, 'data', id+'.summary.json'));
     } catch (e) {
@@ -158,7 +162,13 @@ app.all('/event', function(req, res, next) {
     } catch (e) {
       console.log("ERROR", e);
     }
-    res.end('SUMMARY\n\n' + summary + '\n\n\nDETAILS\n\n' + details.toString().replace(/^(?:[\t ]*(?:\r?\n|\r))+/));
+
+    try {
+      hook = fs.readFileSync(path.join(__dirname, 'data', id+'.hook.json') );
+    } catch (e) {
+      console.log("ERROR", e);
+    }
+    res.end('SUMMARY\n\n' + summary + '\n\n\nDETAILS\n\n' + details.toString().replace(/^(?:[\t ]*(?:\r?\n|\r))+/) + '\n\nHOOK\n\n' + hook);
   } else {
     res.status(404).end();
   }

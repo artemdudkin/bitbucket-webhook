@@ -13,6 +13,7 @@ const run = proxyquire('../js/index', {
     }
   }
 });
+const utils = require("../js/utils");
 
 var xxx = 0;
 function runScriptStub(command, opt) {
@@ -119,12 +120,12 @@ describe('index', function(){
 
   beforeEach(function(){
     sinon.stub(process, "chdir");
-    sinon.spy(console, "log");
+    sinon.spy(utils, "log");
   })
 
   afterEach(function(){
     process.chdir.restore();
-    console.log.restore();
+    utils.log.restore();
   })  
 
   it('simple case', ()=> {
@@ -154,8 +155,8 @@ describe('index', function(){
       assert.equal( runScriptSpy.getCall(14).args[0], SCRIPT_G+' ssh://git@192.168.1.1:3333/ufsmwp/bbb.git http://user:123@194.67.209.1:3333/test/bbb.git');
 
       //should show rejected branches after retry 
-      assert.deepEqual( console.log.getCall(31).args, [ '       [rejected]', 'Feature/add-new-render-method' ]);
-      assert.deepEqual( console.log.getCall(44).args, [ '       [rejected]', 'Feature/add-new-render-method' ]);
+      assert.deepEqual( utils.log.getCall(31).args, [ '       [rejected]', 'Feature/add-new-render-method' ]);
+      assert.deepEqual( utils.log.getCall(44).args, [ '       [rejected]', 'Feature/add-new-render-method' ]);
 //      var cc = console.log.callCount; for (var i =0; i<cc; i++) console.log( i, console.log.getCall(i).args);
     });
   })

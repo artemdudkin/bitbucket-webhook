@@ -1,7 +1,7 @@
 const utils = require('./utils');
 
 function Parser(){
-  this._log = [];  
+  this._log = [];
 }
 
 Parser.prototype.reset = function(){
@@ -48,8 +48,7 @@ Parser.prototype.do_aggregate = function(cb_rejected, log){
     function process(log_array){
       const status = {
         ok : false,
-        was_not_changed : false,
-        error_unable_to_access_source_repo : false,
+        error_unable_to_access_source_repo : true,
         error_unable_to_access_destination_repo : false,
         branches_changed : 0,
         branches_rejected : 0,
@@ -59,18 +58,24 @@ Parser.prototype.do_aggregate = function(cb_rejected, log){
         to : ''
       }
 
+
+      log_array = log_array.join("").split(/[\n\r]/g);
+      log_array.forEach(_=>{
+        processLine(_, status);
+      })
+/*
       //lines can contain several log strings separated with \n or \r
       log_array.forEach(_=>{
         _ = _.split(/[\n\r]/g);
         for (var i in _) processLine(_[i], status);
       })
-
+*/
       return {
         ok : status.ok,
         main_branch : status.main_branch, 
         changed: (status.error_unable_to_access_source_repo ? 'x' :
                     (status.error_unable_to_access_destination_repo ? '?' :
-                       (status.was_not_changed ? '-' : status.branches_changed+'u' + (status.branches_rejected?status.branches_rejected+'r':''))
+                       ( (!status.branches_changed && !status.branches_rejected) ? '-' : status.branches_changed+'u' + (status.branches_rejected?status.branches_rejected+'r':''))
                     )
                  ),
         rejected : status.rejected,
@@ -90,20 +95,22 @@ Parser.prototype.do_aggregate = function(cb_rejected, log){
         //is it good log or something empty? 
         if (_.indexOf('Cloning into ')!=-1) status.ok = true;
 
-        //was repo changed since last check?
-        if (_.indexOf('Everything up-to-date')!=-1) status.was_not_changed = true;
-
         //check "unable to access" error (cannot access source or destination repo)
         if (_.indexOf('atal: unable to access')!=-1) status.error_unable_to_access_destination_repo = true;
         if (_.indexOf('atal: Authentication failed for')!=-1) status.error_unable_to_access_destination_repo = true;
         if (_.match(/atal: repository[\s]*[^\s]*[\s]*not found/gi)) status.error_unable_to_access_destination_repo = true;
+        if (_.indexOf('atal: Could not read from remote')!=-1) status.error_unable_to_access_destination_repo = true;
+        if (_.indexOf('epository not found')!=-1) status.error_unable_to_access_destination_repo = true;
 
-        if (_.indexOf('atal: Could not read from remote')!=-1) status.error_unable_to_access_source_repo = true;
+//        if (_.indexOf('atal: Could not read from remote')!=-1) status.error_unable_to_access_source_repo = true;
+//        if (_.indexOf('Repository not found')!=-1) status.error_unable_to_access_source_repo = true;
+        if (_.indexOf('remote: Counting objects:')!=-1) status.error_unable_to_access_source_repo = false;
+        if (_.indexOf('warning: You appear to have cloned an empty repository')!=-1) status.error_unable_to_access_source_repo = false;
 
         //find default branch
-        var s = _.split('atal: A branch named');
-        if (s[1]) {
-          s = s[1].split('already exists.')
+        var pos = _.toLowerCase().indexOf('atal: a branch named');
+        if (pos !== -1 ) {
+          let s = (_.substring(pos+20)).split('already exists')
           status.main_branch = s[0].replace(/\'/g, '').trim();
         }
 

@@ -11,7 +11,7 @@ let log_file_name = '../_log';
 
 var repos_with_rejected_branches = [];
 
-function run( fn, onData) {
+function run(fn) {
   if (fn) log_file_name = fn;
 
   const p = new Parser();
@@ -19,23 +19,29 @@ function run( fn, onData) {
 
   process.chdir('./sh');
 
-  return runScript(SCRIPT_RUN, {onData:(s)=>{
+  let agg;
+  return runScript(SCRIPT_RUN, {onData:(s) => {
       p.add_new_string_and_try_aggregate(s, log_if_branch_was_rejected_and_remember);
   }})
-  .then(res=>{
-    p.do_aggregate(log_if_branch_was_rejected_and_remember); //please do not loose info about last block
-    return log('\n\n\n\n\n\n\n\n\n\n+++++++\n'+(''+new Date())+' '+JSON.stringify(res, null, 2));
+  .then(res => {
+    agg = p.do_aggregate(log_if_branch_was_rejected_and_remember); //please do not loose info about last block
+    log('\n\n\n\n\n\n\n\n\n\n+++++++\n'+(''+new Date())+' '+JSON.stringify(res, null, 2));
+    return agg;
   })
-  .catch(res=>{
-    p.do_aggregate(log_if_branch_was_rejected_and_remember); //please do not loose info about last block
+  .catch(res => {
+    agg = p.do_aggregate(log_if_branch_was_rejected_and_remember); //please do not loose info about last block
     return log('\n\n\n\n\n\n\n\n\n\n-------\n'+(''+new Date()) + ' '+JSON.stringify(res, null, 2));
+    return agg;
   })
-  .then(res=>{
+  .then( () =>{
     //deal with repos with rejected branches
     if (repos_with_rejected_branches.length) {
       return delete_rejected_branches_and_copy_again(repos_with_rejected_branches);
     }
   })
+  .then( () =>{
+    return agg;
+  });
 }
 
 

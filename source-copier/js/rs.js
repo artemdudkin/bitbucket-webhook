@@ -33,7 +33,7 @@ function run(command, opt) {
           if (typeof opt.onData == 'function'){
             opt.onData(s);
           } else {
-            result.lines.push('ERROR opt.onData is not a function');
+            result.lines.push('\nERROR opt.onData is not a function\n');
           }
         }
       });
@@ -45,13 +45,15 @@ function run(command, opt) {
           if (typeof opt.onData == 'function'){
             opt.onData(s);
           } else {
-            result.lines.push('ERROR opt.onData is not a function');
+            result.lines.push('\nERROR opt.onData is not a function\n');
           }
         }
       });
 
       proc.on('exit', function (code) {
-        result.lines.push('EXIT '+ code);
+        result.lines.push('\nEXIT '+ code);
+        result.lines = result.lines.join("").split(/[\n\r]/g);
+
         if (code == 0) { 
           resolve(result);
         } else {
@@ -61,17 +63,18 @@ function run(command, opt) {
       });
 
       proc.on('error', function (data) {
-        result.lines.push('ERROR '+ data.toString('utf8'));
+        result.lines.push('\nERROR '+ data.toString('utf8'));
+        result.lines = result.lines.join("").split(/[\n\r]/g);
         reject(result);
       });
 
     } catch (err) {
       result.resultCode = -1;
-      result.lines.push('ERROR '+ err.stack);
+      result.lines.push('\nERROR '+ err.stack);
+      result.lines = result.lines.join("").split(/[\n\r]/g);
       reject(result);
     }
   })
 }
 
 module.exports = {runScript:run};
-
