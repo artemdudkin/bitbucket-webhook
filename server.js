@@ -84,7 +84,6 @@ app.all('/hook', function(req, res, next) {
 
   let fn = path.join(__dirname, 'data', (eventList.data.length-1)+'.hook.json');
   fs.writeFileSync(fn, JSON.stringify(req.body, null, 4));
-
 });
 
 
@@ -119,7 +118,7 @@ function startEvent() {
       run( path.join(__dirname, 'data', id+'.log.json') )
       .then( res => {
         eventList.data[id].status = res.changed;//"ok";
-	eventList.data[id].duration = Date.now() - stime;
+        eventList.data[id].duration = Date.now() - stime;
 //        return new Promise((resolve, reject) => setTimeout(()=>resolve(), 7000))
       })
       .catch( err => {

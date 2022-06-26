@@ -18,6 +18,7 @@ if "%~2"=="" goto blank
 
   git remote add copy %~2
   git push --all copy
+  git push --tags copy
   cd ..
   rm -rf ./xxx
 

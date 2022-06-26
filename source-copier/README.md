@@ -1,6 +1,6 @@
 # source-copier
 
-Clone git repo with all branches then push it to another repo.
+Clone git repo with all branches (and tags) then push it to another repo.
 
 
 ## How it works
@@ -18,10 +18,8 @@ Clone git repo with all branches then push it to another repo.
 6. Also we have some js code to rule them all (look at ./js and index.js)
 
 ## Usage 
-
-```js
-node ./index.js
-```
+1. Fill in the `sh/_cfg`
+2. `node ./index.js`
 
 ## Output
 
